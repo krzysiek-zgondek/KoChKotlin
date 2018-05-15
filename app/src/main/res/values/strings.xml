@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">The TruthTeller</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="first_name_hint">First Name</string>
+    <string name="last_name_hint">Last Name</string>
+    <string name="hello">Hello stranger</string>
+    <string name="reach_knowledge">To reach my knowledge you have to introduce first. So tell me now, who really you are?</string>
+    <string name="truth">Here is some truth about you.\n<b>Now face it!</b></string>
+    <string name="empty_category">No category</string>
+    <string name="dont_lie">I know that you are not telling me the truth!</string>
+    <string name="huston_problem">Mayday mayday! Huston we\'ve got a problem.</string>
+</resources>

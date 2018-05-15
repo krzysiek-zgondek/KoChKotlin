@@ -1,0 +1,124 @@
+import java.security.spec.InvalidKeySpecException
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt' // if using Kotlin
+apply plugin: 'io.objectbox'
+
+
+buildscript {
+    ext.support_version='27.1.1'
+    ext.anko_version='0.10.4'
+    ext.koin_version = '0.9.3'
+    ext.objectbox_version = '1.5.0'
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "io.objectbox:objectbox-gradle-plugin:$objectbox_version"
+    }
+}
+
+android {
+    compileSdkVersion 27
+
+    signingConfigs{
+        release{
+            def propertiesFile = rootProject.file("/keys/keystore.properties")
+
+            if (propertiesFile.exists()) {
+                def properties = new Properties()
+                properties.load(new FileInputStream(propertiesFile))
+                storeFile = file(properties["storeFile"])
+                storePassword = properties["storePassword"]
+                keyAlias = properties["releaseKeyAlias"]
+                keyPassword = properties["releaseKeyPassword"]
+            } else throw new InvalidKeySpecException("you need a proper keystore.properties file")
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.koch.kotlin.kochkotlin"
+        minSdkVersion 19
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        vectorDrawables.useSupportLibrary = true
+        aaptOptions {
+            additionalParameters "--no-version-vectors"
+        }
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dexOptions {
+        maxProcessCount 4
+        javaMaxHeapSize "4g"
+    }
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.5'
+
+    implementation "org.jetbrains.anko:anko-sdk25:$anko_version"
+    implementation "org.jetbrains.anko:anko-sdk25-coroutines:$anko_version"
+    implementation "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
+    implementation "org.jetbrains.anko:anko-appcompat-v7-coroutines:$anko_version"
+    implementation "org.jetbrains.anko:anko-design:$anko_version"
+    implementation "org.jetbrains.anko:anko-constraint-layout:$anko_version"
+    implementation "org.jetbrains.anko:anko-recyclerview-v7:$anko_version"
+
+    implementation "com.android.support:support-v4:$support_version"
+    implementation "com.android.support:recyclerview-v7:$support_version"
+    implementation "com.android.support:appcompat-v7:$support_version"
+    implementation "com.android.support:design:$support_version"
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+
+    implementation "android.arch.lifecycle:extensions:1.1.1"
+    kapt "android.arch.lifecycle:compiler:1.1.1"
+
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
+
+    implementation "org.koin:koin-core:$koin_version"
+    implementation "org.koin:koin-android:$koin_version"
+    implementation "org.koin:koin-android-architecture:$koin_version"
+    implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-experimental-adapter:1.0.0'
+
+    implementation 'org.greenrobot:eventbus:3.1.1'
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+android.applicationVariants.all { variant ->
+    if (variant.buildType.name == "debug") {
+        return
+    }
+    variant.outputs.all { output ->
+        outputFileName = "TruthTeller_${variant.name}_${android.defaultConfig.versionName}_${System.getenv("BUILD_NUMBER") as Integer ?: 0}.apk"
+    }
+}
